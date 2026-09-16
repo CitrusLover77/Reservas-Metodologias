@@ -1,0 +1,967 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Citrus Zone - Sistema de Reservas</title>
+  <link rel="icon" href="CitrusZoneLogo.ico" type="image/x-icon">
+  <style>
+    :root {
+      --bg: #fffbf8;
+      --surface: #ffffff;
+      --surface-soft: #fff3ed;
+      --surface-rose: #fff2f5;
+      --ink: #2b211d;
+      --muted: #776a64;
+      --line: #efddd4;
+      --accent: #e96f3f;
+      --accent-dark: #b84a25;
+      --rose: #d65f7a;
+      --rose-dark: #a83f58;
+      --success: #2f7d56;
+      --success-soft: #edf8f1;
+      --warning: #a86615;
+      --warning-soft: #fff6e8;
+      --danger: #b9404f;
+      --danger-soft: #fff0f2;
+      --shadow: 0 16px 40px rgba(84, 47, 30, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(255, 202, 179, 0.28), transparent 340px),
+        var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 18px 0 34px;
+    }
+
+    .top-nav {
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 220px;
+    }
+
+    .brand img {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 3px;
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 16px;
+    }
+
+    .brand span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px;
+      box-shadow: 0 8px 24px rgba(84, 47, 30, 0.05);
+    }
+
+    .nav-links button,
+    .account-actions button {
+      min-height: 36px;
+      border-radius: 999px;
+      padding: 0 14px;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .nav-links button.active {
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .account-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      min-width: 220px;
+    }
+
+    .account-actions .primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.72fr);
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+
+    .intro,
+    .auth-card,
+    .panel,
+    .rule-card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .intro {
+      padding: 28px;
+      display: grid;
+      align-content: center;
+      gap: 14px;
+    }
+
+    .eyebrow {
+      width: fit-content;
+      min-height: 30px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 0 11px;
+      background: var(--surface-soft);
+      color: var(--accent-dark);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      max-width: 760px;
+      font-size: clamp(30px, 4.2vw, 52px);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .intro p,
+    .panel-subtitle,
+    .muted {
+      color: var(--muted);
+    }
+
+    .auth-card {
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .auth-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .auth-tabs,
+    .role-switch {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+    }
+
+    .auth-tabs button,
+    .role-switch button {
+      min-height: 32px;
+      border-radius: 999px;
+      padding: 0 12px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .auth-tabs button.active,
+    .role-switch button.active {
+      background: var(--surface-rose);
+      color: var(--rose-dark);
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 12px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    input:focus,
+    select:focus {
+      outline: 2px solid rgba(233, 111, 63, 0.22);
+      border-color: rgba(233, 111, 63, 0.62);
+    }
+
+    .primary-btn,
+    .secondary-btn,
+    .ghost-btn,
+    .danger-btn {
+      min-height: 42px;
+      border-radius: 8px;
+      padding: 0 14px;
+      font-weight: 800;
+    }
+
+    .primary-btn {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .primary-btn:hover {
+      background: var(--accent-dark);
+    }
+
+    .secondary-btn {
+      background: var(--surface-soft);
+      color: var(--accent-dark);
+    }
+
+    .ghost-btn {
+      background: #fff;
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+
+    .danger-btn {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    .status-pill {
+      min-height: 28px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 0 10px;
+      background: var(--success-soft);
+      color: var(--success);
+      font-size: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .status-pill.warning {
+      background: var(--warning-soft);
+      color: var(--warning);
+    }
+
+    .status-pill.danger {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.12fr) minmax(320px, 0.88fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      overflow: hidden;
+    }
+
+    .panel-header {
+      min-height: 64px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .panel-header h2 {
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .panel-subtitle {
+      margin-top: 3px;
+      font-size: 13px;
+    }
+
+    .panel-body {
+      padding: 20px;
+    }
+
+    .booking-layout {
+      display: grid;
+      grid-template-columns: minmax(240px, 0.88fr) minmax(290px, 1.12fr);
+      gap: 18px;
+    }
+
+    .service-box {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffdfb;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 3px;
+    }
+
+    .metric strong {
+      font-size: 18px;
+    }
+
+    .date-row {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .date-chip {
+      min-height: 56px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+    }
+
+    .date-chip span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .date-chip.active {
+      border-color: rgba(233, 111, 63, 0.7);
+      background: var(--surface-soft);
+      color: var(--accent-dark);
+      font-weight: 850;
+    }
+
+    .slots {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .slot {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 750;
+    }
+
+    .slot.selected {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .slot.blocked {
+      background: #f4eeee;
+      color: #a99b95;
+      text-decoration: line-through;
+      cursor: not-allowed;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .summary {
+      display: grid;
+      gap: 12px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .summary-row span {
+      color: var(--muted);
+    }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 30px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .step-mark {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--surface-soft);
+      color: var(--accent-dark);
+      font-weight: 900;
+      font-size: 12px;
+    }
+
+    .step strong {
+      display: block;
+      font-size: 13px;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .admin-grid,
+    .rules {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .admin-card,
+    .rule-card {
+      padding: 14px;
+      min-height: 112px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .admin-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .admin-card span,
+    .rule-card span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .rules {
+      margin-top: 18px;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .auth-register-only {
+      display: none;
+    }
+
+    .auth-card.register-mode .auth-register-only {
+      display: grid;
+    }
+
+    @media (max-width: 980px) {
+      .top-nav,
+      .hero,
+      .main-grid,
+      .booking-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .top-nav {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .brand,
+      .account-actions {
+        min-width: 0;
+      }
+
+      .account-actions,
+      .nav-links {
+        justify-content: center;
+      }
+
+      .admin-grid,
+      .rules {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app {
+        width: min(100% - 20px, 1180px);
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+
+      .date-row,
+      .slots,
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-row {
+        display: grid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="top-nav">
+      <div class="brand">
+        <img src="CitrusZoneLogo.ico" alt="Citrus Zone">
+        <div>
+          <strong>Citrus Zone</strong>
+          <span>Sistema de reservas</span>
+        </div>
+      </div>
+
+      <nav class="nav-links" aria-label="Secciones">
+        <button class="active" type="button" data-view-button="client">Reservar</button>
+        <button type="button" data-view-button="admin">Admin</button>
+        <button type="button" data-view-button="testing">Testing</button>
+      </nav>
+
+      <div class="account-actions">
+        <button type="button" data-auth-focus="login">Ingresar</button>
+        <button class="primary" type="button" data-auth-focus="register">Crear cuenta</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <article class="intro">
+        <span class="eyebrow">MVP backend + flujo visual</span>
+        <h1>Reserva turnos sin solapamientos y con reglas testeables.</h1>
+        <p>Mockup minimalista para explicar el recorrido del cliente, la autenticacion, la disponibilidad y la gestion administrativa del salon.</p>
+      </article>
+
+      <aside class="auth-card" id="auth-card">
+        <div class="auth-header">
+          <div>
+            <h2 id="auth-title">Acceso del cliente</h2>
+            <p class="panel-subtitle" id="auth-subtitle">Ingresar permite ver y cancelar reservas propias.</p>
+          </div>
+          <div class="auth-tabs">
+            <button class="active" type="button" data-auth-mode="login">Login</button>
+            <button type="button" data-auth-mode="register">Registro</button>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <label class="auth-register-only">
+            Nombre completo
+            <input id="auth-name" type="text" value="Ana Perez">
+          </label>
+          <label>
+            Email
+            <input id="auth-email" type="email" value="ana@correo.com">
+          </label>
+          <label>
+            Password
+            <input type="password" value="12345678">
+          </label>
+          <label class="auth-register-only">
+            Telefono
+            <input type="tel" value="+54 9 11 5555 1234">
+          </label>
+          <button class="primary-btn" id="auth-submit" type="button">Ingresar</button>
+          <span class="muted" id="auth-message">Estado: invitado. Puede consultar servicios, pero debe ingresar para reservar.</span>
+        </div>
+      </aside>
+    </section>
+
+    <section id="client-view" class="view active">
+      <div class="main-grid">
+        <article class="panel">
+          <header class="panel-header">
+            <div>
+              <h2>Nueva reserva</h2>
+              <p class="panel-subtitle">El backend valida servicio activo, horario laboral, bloqueos y conflictos.</p>
+            </div>
+            <span class="status-pill" id="availability-status">Disponible</span>
+          </header>
+
+          <div class="panel-body">
+            <div class="booking-layout">
+              <div class="form-grid">
+                <label>
+                  Servicio
+                  <select id="service-select">
+                    <option value="manicura">Manicura semipermanente</option>
+                    <option value="cejas">Perfilado de cejas</option>
+                    <option value="facial">Limpieza facial</option>
+                  </select>
+                </label>
+
+                <label>
+                  Profesional
+                  <select id="professional-select">
+                    <option value="Lucia">Lucia Gomez</option>
+                    <option value="Martina">Martina Ruiz</option>
+                    <option value="Sofia">Sofia Vega</option>
+                  </select>
+                </label>
+
+                <label>
+                  Fecha
+                  <input id="date-input" type="date" value="2026-05-22">
+                </label>
+
+                <div class="service-box">
+                  <div class="metrics">
+                    <div class="metric"><span>Duracion</span><strong id="duration-value">60 min</strong></div>
+                    <div class="metric"><span>Precio</span><strong id="price-value">$18.000</strong></div>
+                  </div>
+                  <div>
+                    <strong id="service-title">Manicura semipermanente</strong>
+                    <p class="muted" id="service-description">Servicio activo y disponible para reserva online.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="date-row" aria-label="Dias disponibles">
+                  <button class="date-chip active" type="button" data-date="2026-05-22"><strong>Vie 22</strong><span>Mayo</span></button>
+                  <button class="date-chip" type="button" data-date="2026-05-23"><strong>Sab 23</strong><span>Mayo</span></button>
+                  <button class="date-chip" type="button" data-date="2026-05-25"><strong>Lun 25</strong><span>Mayo</span></button>
+                  <button class="date-chip" type="button" data-date="2026-05-26"><strong>Mar 26</strong><span>Mayo</span></button>
+                  <button class="date-chip" type="button" data-date="2026-05-27"><strong>Mie 27</strong><span>Mayo</span></button>
+                </div>
+
+                <div class="slots">
+                  <button class="slot" type="button">09:00</button>
+                  <button class="slot selected" type="button">10:00</button>
+                  <button class="slot blocked" type="button" disabled>11:00</button>
+                  <button class="slot" type="button">12:00</button>
+                  <button class="slot" type="button">14:00</button>
+                  <button class="slot blocked" type="button" disabled>15:00</button>
+                  <button class="slot" type="button">16:00</button>
+                  <button class="slot" type="button">17:00</button>
+                  <button class="slot" type="button">18:00</button>
+                </div>
+
+                <div class="actions">
+                  <button class="primary-btn" id="reserve-btn" type="button">Confirmar reserva</button>
+                  <button class="secondary-btn" id="block-btn" type="button">Simular bloqueo</button>
+                  <button class="danger-btn" id="cancel-btn" type="button">Cancelar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <aside class="panel">
+          <header class="panel-header">
+            <div>
+              <h2>Resumen</h2>
+              <p class="panel-subtitle">Estado de la reserva y respuesta esperada.</p>
+            </div>
+            <span class="status-pill warning" id="reservation-state">Pendiente</span>
+          </header>
+
+          <div class="panel-body">
+            <div class="summary">
+              <div class="summary-row"><span>Cliente</span><strong id="summary-client">Invitado</strong></div>
+              <div class="summary-row"><span>Servicio</span><strong id="summary-service">Manicura semipermanente</strong></div>
+              <div class="summary-row"><span>Profesional</span><strong id="summary-professional">Lucia Gomez</strong></div>
+              <div class="summary-row"><span>Fecha y hora</span><strong id="summary-date">22/05/2026 10:00</strong></div>
+              <div class="summary-row"><span>Estado</span><strong id="summary-status">Debe iniciar sesion para reservar</strong></div>
+            </div>
+
+            <div class="steps">
+              <div class="step"><div class="step-mark">1</div><div><strong>Auth</strong><span>Identifica usuario y rol antes de reservar.</span></div></div>
+              <div class="step"><div class="step-mark">2</div><div><strong>Service</strong><span>Valida disponibilidad, bloqueos y conflictos.</span></div></div>
+              <div class="step"><div class="step-mark">3</div><div><strong>Repository</strong><span>Persiste la reserva en PostgreSQL mediante PDO.</span></div></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="admin-view" class="view">
+      <article class="panel">
+        <header class="panel-header">
+          <div>
+            <h2>Gestion del salon</h2>
+            <p class="panel-subtitle">Vista interna para admin o superadmin.</p>
+          </div>
+          <span class="status-pill">Admin</span>
+        </header>
+        <div class="panel-body">
+          <div class="admin-grid">
+            <div class="admin-card"><strong>Servicios</strong><span>Crear, editar, activar o desactivar servicios.</span><button class="secondary-btn" type="button">Gestionar</button></div>
+            <div class="admin-card"><strong>Horarios</strong><span>Definir disponibilidad laboral por profesional.</span><button class="secondary-btn" type="button">Definir</button></div>
+            <div class="admin-card"><strong>Bloqueos</strong><span>Marcar rangos no disponibles por agenda interna.</span><button class="secondary-btn" type="button">Bloquear</button></div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="testing-view" class="view">
+      <article class="panel">
+        <header class="panel-header">
+          <div>
+            <h2>Reglas testeables</h2>
+            <p class="panel-subtitle">Cada decision importante del flujo debe tener pruebas con PHPUnit.</p>
+          </div>
+          <span class="status-pill">PHPUnit</span>
+        </header>
+        <div class="panel-body">
+          <div class="rules">
+            <div class="rule-card"><strong>Autenticacion</strong><span>Registrar, iniciar sesion y aplicar permisos segun rol.</span></div>
+            <div class="rule-card"><strong>Disponibilidad</strong><span>Rechazar pasado, fuera de horario, bloqueos y servicios inactivos.</span></div>
+            <div class="rule-card"><strong>Conflictos</strong><span>Evitar reservas solapadas para el mismo profesional.</span></div>
+          </div>
+        </div>
+      </article>
+    </section>
+  </div>
+
+  <script>
+    const services = {
+      manicura: {
+        title: "Manicura semipermanente",
+        duration: "60 min",
+        price: "$18.000",
+        description: "Servicio activo y disponible para reserva online."
+      },
+      cejas: {
+        title: "Perfilado de cejas",
+        duration: "30 min",
+        price: "$9.500",
+        description: "Turno breve con validacion de disponibilidad por profesional."
+      },
+      facial: {
+        title: "Limpieza facial",
+        duration: "90 min",
+        price: "$26.000",
+        description: "Servicio de mayor duracion, requiere controlar solapamientos."
+      }
+    };
+
+    const authCard = document.querySelector("#auth-card");
+    const authTitle = document.querySelector("#auth-title");
+    const authSubtitle = document.querySelector("#auth-subtitle");
+    const authSubmit = document.querySelector("#auth-submit");
+    const authMessage = document.querySelector("#auth-message");
+    const authName = document.querySelector("#auth-name");
+    const summaryClient = document.querySelector("#summary-client");
+    const summaryStatus = document.querySelector("#summary-status");
+    const reservationState = document.querySelector("#reservation-state");
+    const availabilityStatus = document.querySelector("#availability-status");
+    const serviceSelect = document.querySelector("#service-select");
+    const professionalSelect = document.querySelector("#professional-select");
+    const dateInput = document.querySelector("#date-input");
+
+    let loggedIn = false;
+
+    function formatDate(value) {
+      const parts = value.split("-");
+      return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : value;
+    }
+
+    function selectedSlotText() {
+      const selected = document.querySelector(".slot.selected");
+      return selected ? selected.textContent.trim() : "Sin horario";
+    }
+
+    function updateSummary() {
+      const service = services[serviceSelect.value];
+      document.querySelector("#duration-value").textContent = service.duration;
+      document.querySelector("#price-value").textContent = service.price;
+      document.querySelector("#service-title").textContent = service.title;
+      document.querySelector("#service-description").textContent = service.description;
+      document.querySelector("#summary-service").textContent = service.title;
+      document.querySelector("#summary-professional").textContent = professionalSelect.options[professionalSelect.selectedIndex].text;
+      document.querySelector("#summary-date").textContent = `${formatDate(dateInput.value)} ${selectedSlotText()}`;
+    }
+
+    function setReservationState(label, type, text) {
+      reservationState.className = `status-pill ${type || ""}`.trim();
+      reservationState.textContent = label;
+      summaryStatus.textContent = text;
+    }
+
+    document.querySelectorAll("[data-auth-mode], [data-auth-focus]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const mode = button.dataset.authMode || button.dataset.authFocus;
+        document.querySelectorAll("[data-auth-mode]").forEach((item) => item.classList.toggle("active", item.dataset.authMode === mode));
+        authCard.classList.toggle("register-mode", mode === "register");
+        authTitle.textContent = mode === "register" ? "Crear cuenta" : "Acceso del cliente";
+        authSubtitle.textContent = mode === "register" ? "El registro permite reservar y ver turnos propios." : "Ingresar permite ver y cancelar reservas propias.";
+        authSubmit.textContent = mode === "register" ? "Registrarme" : "Ingresar";
+        authCard.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    });
+
+    authSubmit.addEventListener("click", () => {
+      loggedIn = true;
+      const name = authName.value.trim() || "Ana Perez";
+      summaryClient.textContent = name;
+      authMessage.textContent = `Estado: ${name} autenticada como user. Ya puede confirmar reservas.`;
+      setReservationState("Pendiente", "warning", "Lista para confirmar reserva");
+    });
+
+    document.querySelectorAll("[data-view-button]").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-view-button]").forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        document.querySelectorAll(".view").forEach((view) => view.classList.remove("active"));
+        document.querySelector(`#${button.dataset.viewButton}-view`).classList.add("active");
+      });
+    });
+
+    document.querySelectorAll(".date-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        document.querySelectorAll(".date-chip").forEach((item) => item.classList.remove("active"));
+        chip.classList.add("active");
+        dateInput.value = chip.dataset.date;
+        updateSummary();
+      });
+    });
+
+    document.querySelectorAll(".slot:not(.blocked)").forEach((slot) => {
+      slot.addEventListener("click", () => {
+        document.querySelectorAll(".slot").forEach((item) => item.classList.remove("selected"));
+        slot.classList.add("selected");
+        availabilityStatus.className = "status-pill";
+        availabilityStatus.textContent = "Disponible";
+        setReservationState("Pendiente", "warning", loggedIn ? "Lista para confirmar reserva" : "Debe iniciar sesion para reservar");
+        updateSummary();
+      });
+    });
+
+    serviceSelect.addEventListener("change", updateSummary);
+    professionalSelect.addEventListener("change", updateSummary);
+    dateInput.addEventListener("change", updateSummary);
+
+    document.querySelector("#reserve-btn").addEventListener("click", () => {
+      if (!loggedIn) {
+        availabilityStatus.className = "status-pill danger";
+        availabilityStatus.textContent = "Requiere login";
+        setReservationState("Bloqueada", "danger", "Debe iniciar sesion o registrarse antes de reservar");
+        return;
+      }
+      availabilityStatus.className = "status-pill";
+      availabilityStatus.textContent = "Reservado";
+      setReservationState("Confirmada", "", "Reserva creada correctamente");
+    });
+
+    document.querySelector("#block-btn").addEventListener("click", () => {
+      availabilityStatus.className = "status-pill danger";
+      availabilityStatus.textContent = "Bloqueado";
+      setReservationState("Rechazada", "danger", "Horario bloqueado por agenda interna");
+    });
+
+    document.querySelector("#cancel-btn").addEventListener("click", () => {
+      availabilityStatus.className = "status-pill warning";
+      availabilityStatus.textContent = "Liberado";
+      setReservationState("Cancelada", "warning", loggedIn ? "Reserva cancelada y horario disponible" : "Solo usuarios autenticados cancelan reservas propias");
+    });
+
+    updateSummary();
+  </script>
+</body>
+</html>

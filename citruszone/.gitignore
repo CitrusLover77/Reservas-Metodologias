@@ -1,0 +1,5 @@
+backend/vendor/
+backend/.env
+backend/.phpunit.cache/
+.DS_Store
+*.log

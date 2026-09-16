@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Citrus Zone · Ingresar</title>
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <div class="app" style="max-width:920px">
+    <header class="top-nav">
+      <a class="brand" href="login.html">
+        <span class="mark">CZ</span>
+        <div><strong>Citrus Zone</strong><span>Sistema de reservas</span></div>
+      </a>
+    </header>
+
+    <section class="hero" style="display:grid; grid-template-columns: minmax(0,1fr) minmax(320px,0.85fr); gap:18px;">
+      <article class="intro" style="padding:28px; display:grid; align-content:center; gap:14px;">
+        <span class="eyebrow">Sistema de reservas</span>
+        <h1>Reserva turnos sin solapamientos y con reglas testeables.</h1>
+        <p class="muted">Ingresá con tu cuenta para reservar un turno, ver tus reservas o, si sos parte del staff, gestionar el salón.</p>
+      </article>
+
+      <aside class="auth-card" style="padding:18px; display:grid; gap:14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+          <div>
+            <h2>Acceso del cliente</h2>
+            <p class="panel-subtitle">Ingresar permite ver y cancelar reservas propias.</p>
+          </div>
+          <div style="display:inline-flex; gap:4px; padding:4px; border:1px solid var(--line); border-radius:999px; background:#fff;">
+            <span class="status-pill" style="background:var(--ink); color:#fff;">Login</span>
+            <a href="registro.html" class="status-pill" style="background:transparent; color:var(--muted);">Registro</a>
+          </div>
+        </div>
+
+        <form id="login-form" class="form-grid" novalidate>
+          <div id="login-error" class="form-error" role="alert"></div>
+          <label>Email<input id="email" type="email" required autocomplete="username"></label>
+          <label>Password<input id="password" type="password" required autocomplete="current-password"></label>
+          <button class="primary-btn" type="submit" id="submit-btn">Ingresar</button>
+          <span class="muted">Estado: invitado. Puede consultar servicios, pero debe ingresar para reservar.</span>
+        </form>
+
+        <p class="muted" style="font-size:13px;">¿No tenés cuenta? <a href="registro.html" style="color:var(--accent-dark); font-weight:700;">Creá una acá</a>.</p>
+      </aside>
+    </section>
+
+    <footer class="page-footer">
+      <span>Citrus Zone</span>
+      <span>Backend: PHP + PostgreSQL vía PDO</span>
+    </footer>
+  </div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script>
+    redirectIfLoggedIn();
+
+    const form = document.getElementById("login-form");
+    const errorBox = document.getElementById("login-error");
+    const submitBtn = document.getElementById("submit-btn");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hideError(errorBox);
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Ingresando...";
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      try {
+        const { token, user } = await Api.login(email, password);
+        Auth.setSession(token, user);
+        window.location.href = (user.role === "admin" || user.role === "superadmin")
+          ? "admin/panel.html"
+          : "inicio.html";
+      } catch (err) {
+        showError(errorBox, err.message || "No se pudo iniciar sesión.");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Ingresar";
+      }
+    });
+  </script>
+</body>
+</html>

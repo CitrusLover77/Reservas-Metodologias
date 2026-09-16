@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Citrus Zone · Crear cuenta</title>
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <div class="app" style="max-width:920px">
+    <header class="top-nav">
+      <a class="brand" href="login.html">
+        <span class="mark">CZ</span>
+        <div><strong>Citrus Zone</strong><span>Sistema de reservas</span></div>
+      </a>
+    </header>
+
+    <section class="hero" style="display:grid; grid-template-columns: minmax(0,1fr) minmax(320px,0.85fr); gap:18px;">
+      <article class="intro" style="padding:28px; display:grid; align-content:center; gap:14px;">
+        <span class="eyebrow">Paso 1 de 1</span>
+        <h1>Creá tu cuenta para reservar turnos.</h1>
+        <p class="muted">El registro habilita el rol <strong>user</strong>: reservar turnos, verlos y cancelarlos. Los roles admin y superadmin se asignan aparte, desde la base de datos.</p>
+      </article>
+
+      <aside class="auth-card" style="padding:18px; display:grid; gap:14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+          <div>
+            <h2>Crear cuenta</h2>
+            <p class="panel-subtitle">El registro permite reservar y ver turnos propios.</p>
+          </div>
+          <div style="display:inline-flex; gap:4px; padding:4px; border:1px solid var(--line); border-radius:999px; background:#fff;">
+            <a href="login.html" class="status-pill" style="background:transparent; color:var(--muted);">Login</a>
+            <span class="status-pill" style="background:var(--ink); color:#fff;">Registro</span>
+          </div>
+        </div>
+
+        <form id="register-form" class="form-grid" novalidate>
+          <div id="register-error" class="form-error" role="alert"></div>
+          <label>Nombre completo<input id="nombre" type="text" required autocomplete="name"></label>
+          <label>Email<input id="email" type="email" required autocomplete="username"></label>
+          <label>Password<input id="password" type="password" required minlength="8" autocomplete="new-password"></label>
+          <label>Teléfono<input id="telefono" type="tel" autocomplete="tel"></label>
+          <button class="primary-btn" type="submit" id="submit-btn">Registrarme</button>
+          <span class="muted">Al registrarte, quedás autenticada como user y podés confirmar reservas.</span>
+        </form>
+      </aside>
+    </section>
+
+    <footer class="page-footer">
+      <span>Citrus Zone</span>
+      <span>Backend: PHP + PostgreSQL vía PDO</span>
+    </footer>
+  </div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script>
+    redirectIfLoggedIn();
+
+    const form = document.getElementById("register-form");
+    const errorBox = document.getElementById("register-error");
+    const submitBtn = document.getElementById("submit-btn");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hideError(errorBox);
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Creando cuenta...";
+
+      const data = {
+        nombre: document.getElementById("nombre").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value,
+        telefono: document.getElementById("telefono").value.trim(),
+      };
+
+      try {
+        const { token, user } = await Api.register(data);
+        Auth.setSession(token, user);
+        window.location.href = "inicio.html";
+      } catch (err) {
+        showError(errorBox, err.message || "No se pudo crear la cuenta.");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Registrarme";
+      }
+    });
+  </script>
+</body>
+</html>
