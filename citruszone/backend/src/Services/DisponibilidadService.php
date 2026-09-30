@@ -12,15 +12,19 @@ use App\Repositories\ServicioRepository;
 use App\Support\Exceptions\ConflictException;
 use App\Support\Exceptions\ValidationException;
 use DateTimeImmutable;
+use App\Repositories\BloqueoRepositoryInterface;
+use App\Repositories\HorarioRepositoryInterface;
+use App\Repositories\ReservaRepositoryInterface;
+use App\Repositories\ServicioRepositoryInterface;
 
 final class DisponibilidadService
 {
     public function __construct(
-        private readonly ServicioRepository $servicios = new ServicioRepository(),
-        private readonly HorarioRepository $horarios = new HorarioRepository(),
-        private readonly BloqueoRepository $bloqueos = new BloqueoRepository(),
-        private readonly ReservaRepository $reservas = new ReservaRepository(),
-    ) {}
+    private readonly ServicioRepositoryInterface $servicios = new ServicioRepository(),
+    private readonly HorarioRepositoryInterface $horarios = new HorarioRepository(),
+    private readonly BloqueoRepositoryInterface $bloqueos = new BloqueoRepository(),
+    private readonly ReservaRepositoryInterface $reservas = new ReservaRepository(),
+) {}
 
     public function validar(Servicio $servicio, int $profesionalId, DateTimeImmutable $inicio, DateTimeImmutable $fin): void
     {

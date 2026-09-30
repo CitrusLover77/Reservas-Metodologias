@@ -8,7 +8,7 @@ use App\Config\Database;
 use App\Models\Usuario;
 use PDO;
 
-final class UsuarioRepository
+final class UsuarioRepository implements UsuarioRepositoryInterface
 {
     private PDO $pdo;
 

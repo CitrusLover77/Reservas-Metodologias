@@ -8,7 +8,7 @@ use App\Config\Database;
 use App\Models\HorarioLaboral;
 use PDO;
 
-final class HorarioRepository
+final class HorarioRepository implements HorarioRepositoryInterface
 {
     private PDO $pdo;
 

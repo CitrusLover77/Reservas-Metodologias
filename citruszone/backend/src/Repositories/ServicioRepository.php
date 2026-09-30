@@ -8,7 +8,7 @@ use App\Config\Database;
 use App\Models\Servicio;
 use PDO;
 
-final class ServicioRepository
+final class ServicioRepository implements ServicioRepositoryInterface
 {
     private PDO $pdo;
 

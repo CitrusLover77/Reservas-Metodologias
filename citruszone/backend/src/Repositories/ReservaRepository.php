@@ -10,7 +10,7 @@ use PDO;
 use PDOException;
 use App\Support\Exceptions\ConflictException;
 
-final class ReservaRepository
+final class ReservaRepository implements ReservaRepositoryInterface
 {
     private PDO $pdo;
 

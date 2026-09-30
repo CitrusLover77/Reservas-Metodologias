@@ -6,18 +6,20 @@ namespace App\Services;
 
 use App\Models\Reserva;
 use App\Repositories\ReservaRepository;
+use App\Repositories\ReservaRepositoryInterface; 
 use App\Repositories\ServicioRepository;
 use App\Support\Exceptions\ForbiddenException;
 use App\Support\Exceptions\NotFoundException;
 use App\Support\Exceptions\ValidationException;
 use DateTimeImmutable;
+use App\Repositories\ServicioRepositoryInterface;
 
 final class ReservaService
 {
     public function __construct(
-        private readonly ReservaRepository $reservas = new ReservaRepository(),
-        private readonly ServicioRepository $servicios = new ServicioRepository(),
-        private readonly DisponibilidadService $disponibilidad = new DisponibilidadService(),
+       private readonly ReservaRepositoryInterface $reservas = new ReservaRepository(),
+       private readonly ServicioRepositoryInterface $servicios = new ServicioRepository(),
+       private readonly DisponibilidadService $disponibilidad = new DisponibilidadService(),
     ) {
     }
 

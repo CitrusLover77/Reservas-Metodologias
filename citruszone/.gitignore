@@ -3,3 +3,5 @@ backend/.env
 backend/.phpunit.cache/
 .DS_Store
 *.log
+.phpunit.result.cache
+backend/.env.testing

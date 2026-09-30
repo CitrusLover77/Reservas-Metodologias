@@ -8,12 +8,13 @@ use App\Repositories\UsuarioRepository;
 use App\Security\Jwt;
 use App\Support\Exceptions\UnauthorizedException;
 use App\Support\Exceptions\ValidationException;
+use App\Repositories\UsuarioRepositoryInterface;
 
 final class AuthService
 {
-    public function __construct(private readonly UsuarioRepository $usuarios = new UsuarioRepository())
-    {
-    }
+   public function __construct(private readonly UsuarioRepositoryInterface $usuarios = new UsuarioRepository())
+{
+}
 
     /** @return array{token:string,user:array{id:int,nombre:string,email:string,role:string}} */
     public function register(string $nombre, string $email, string $password, ?string $telefono): array

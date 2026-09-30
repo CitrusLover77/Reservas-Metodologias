@@ -8,7 +8,7 @@ use App\Config\Database;
 use App\Models\Bloqueo;
 use PDO;
 
-final class BloqueoRepository
+final class BloqueoRepository implements BloqueoRepositoryInterface
 {
     private PDO $pdo;
 
