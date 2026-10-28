@@ -33,10 +33,20 @@ final class ReservaRepositoryTest extends TestCase
 
         // Seguro anti-desastres: este test BORRA datos, así que solo corre en una base "_test"
         if (!str_ends_with($_ENV['DB_NAME'] ?? '', '_test')) {
-            $this->fail('DB_NAME debe terminar en _test (revisá .env.testing). Este test borra tablas.');
+            $this->markTestSkipped('DB_NAME debe terminar en _test (revisá .env.testing). Este test borra tablas.');
         }
 
-        $this->pdo = Database::connection();
+        if (!extension_loaded('pdo_pgsql')) {
+            $this->markTestSkipped('Falta pdo_pgsql.');
+        }
+        try {
+            $this->pdo = Database::connection();
+        } catch (\RuntimeException $e) {
+            $this->markTestSkipped('Base de pruebas no disponible: ' . $e->getMessage());
+        }
+        if (!$this->pdo->query("SELECT to_regclass('public.reservas')")->fetchColumn()) {
+            $this->markTestSkipped('Faltan las migraciones de pruebas.');
+        }
         $this->pdo->exec('TRUNCATE usuarios, servicios, profesionales RESTART IDENTITY CASCADE');
 
         $this->usuarioId = $this->insertar("INSERT INTO usuarios (nombre, email, password_hash) VALUES ('Ana', 'ana@test.com', 'x') RETURNING id");
@@ -91,5 +101,35 @@ final class ReservaRepositoryTest extends TestCase
         $this->repo->crear($this->datosReserva($this->profesionalB, '2030-01-01T10:00:00+00:00', '2030-01-01T11:00:00+00:00'));
 
         $this->assertSame(2, $this->contarReservas());
+    }
+    public function test_dos_conexiones_concurrentes_solo_confirman_una_reserva(): void
+    {
+        if (!extension_loaded('pgsql')) {
+            $this->markTestSkipped('La prueba concurrente requiere ext-pgsql para consultas asincronicas.');
+        }
+        $params = [];
+        foreach (['host'=>'DB_HOST','port'=>'DB_PORT','dbname'=>'DB_NAME','user'=>'DB_USER','password'=>'DB_PASS'] as $key => $env) {
+            $value = str_replace(['\\', "'"], ['\\\\', "\\'"], $_ENV[$env] ?? '');
+            $params[] = $key . "='" . $value . "'";
+        }
+        $second = pg_connect(implode(' ', $params), PGSQL_CONNECT_FORCE_NEW);
+        self::assertNotFalse($second);
+        $sql = 'INSERT INTO reservas (usuario_id, servicio_id, profesional_id, inicio, fin, estado) VALUES ($1,$2,$3,$4,$5,\'confirmada\')';
+        $values = [$this->usuarioId,$this->servicioId,$this->profesionalA,'2030-01-01T10:00:00Z','2030-01-01T11:00:00Z'];
+        try {
+            $this->pdo->beginTransaction();
+            $stmt = $this->pdo->prepare(str_replace(['$1','$2','$3','$4','$5'], ['?','?','?','?','?'], $sql));
+            $stmt->execute($values);
+            pg_query($second, "SET statement_timeout = '5s'");
+            self::assertTrue(pg_send_query_params($second, $sql, $values));
+            // El segundo INSERT compite mientras el primero aun no confirmo.
+            $this->pdo->commit();
+            $result = pg_get_result($second);
+            self::assertSame('23P01', pg_result_error_field($result, PGSQL_DIAG_SQLSTATE));
+            self::assertSame(1, $this->contarReservas());
+        } finally {
+            if ($this->pdo->inTransaction()) { $this->pdo->rollBack(); }
+            pg_close($second);
+        }
     }
 }

@@ -24,7 +24,10 @@
         }
     },
     "scripts": {
-        "test": "phpunit",
+        "test": "phpunit --testsuite Unit",
+        "test:integration": "phpunit --testsuite Integration",
+        "test:all": "phpunit",
         "serve": "php -S localhost:8000 -t public"
     }
 }
+

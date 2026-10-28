@@ -104,3 +104,15 @@ Si cambiás el puerto o el host del backend, actualizá `frontend/assets/js/conf
 1. Completar los métodos `TODO` de `ServicioRepository`, `HorarioRepository`, `BloqueoRepository` y `ReservaRepository::cancelar`.
 2. Sumar el endpoint de disponibilidad (`ReservaController::disponibilidad`) para pintar los slots en `reservar.html`.
 3. Conectar el resto de las pantallas del frontend (inicio, reservar, confirmación, mis reservas, panel admin).
+
+## Correccion de la devolucion de testing
+
+- `composer test`: solo unitarios, sin PostgreSQL.
+- `composer run test:integration`: integracion con base dedicada `_test`. Sin configuracion, conexion o migraciones se informa skipped.
+- `composer run test:all`: ambas suites.
+- SecurityTest recorre las ocho rutas administrativas reales: usuario comun recibe 403; token vencido o con payload manipulado recibe 401.
+- La prueba concurrente usa dos conexiones y un INSERT asincronico mientras la primera transaccion sigue abierta. Espera SQLSTATE 23P01 y exactamente una reserva persistida. Requiere ext-pgsql ademas de pdo_pgsql. No sustituye una prueba de carga HTTP.
+
+Para la presentacion: primero se extrajeron interfaces de los repositorios y se inyectaron en los Services; eso permitio usar dobles sin base en los unitarios. Los constraints y las transacciones se verifican aparte con PostgreSQL real.
+
+En GitHub, un administrador debe seleccionar Settings > Branches > Default branch > Master. El cambio de rama local no modifica la rama predeterminada remota.

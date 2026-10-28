@@ -7,7 +7,7 @@
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
         </testsuite>
-        <testsuite name="Feature">
+        <testsuite name="Integration">
             <directory>tests/Feature</directory>
         </testsuite>
     </testsuites>
@@ -17,3 +17,4 @@
         </include>
     </source>
 </phpunit>
+
